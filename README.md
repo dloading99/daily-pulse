@@ -31,4 +31,4 @@ Se la chiave non è valorizzata, l’app usa un fallback locale per generare bul
 - Insight Deck per il tema selezionato, alimentato da mock realistici (fonti: Bloomberg, HBR, MIT Tech Review, The Economist).
 - Sintesi bullet + Pulse Score generati via wrapper LLM pronto per sostituire i mock con API reali.
 
-Per dettagli di visione e UX consultare `docs/product-brief.md` e `docs/experience-blueprint.md`.
+Per dettagli di visione e UX consultare `docs/product-brief.md` e `docs/experience-blueprint.md`. La specifica tecnica per le slice Research & Insight + Ghostwriter AI è in `docs/slice1-2-tech-spec.md`.
