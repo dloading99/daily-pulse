@@ -3,8 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams } from 'next/navigation';
 import type { ImageAsset, PostDraft } from '@/lib/types';
+import TopNav from '../../components/TopNav';
 
-const USER_ID = process.env.NEXT_PUBLIC_DEMO_USER_ID ?? 'demo-user';
+const USER_ID =
+  process.env.NEXT_PUBLIC_DEMO_USER_ID ??
+  process.env.DEMO_USER_ID ??
+  'demo-user';
 
 type DraftResponse = PostDraft & { image_assets?: ImageAsset[] };
 
@@ -161,136 +165,138 @@ export default function EditorPage() {
   }, [draft]);
 
   return (
-    <main style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px' }}>
-      <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-        <div>
-          <p style={{ margin: 0, color: '#6b7280', fontSize: 14 }}>Editor</p>
-          <h1 style={{ margin: '6px 0 0', fontSize: 26 }}>Bozza LinkedIn</h1>
-        </div>
-        <span
-          style={{
-            padding: '6px 12px',
-            background: draft?.status === 'published' ? '#d1fae5' : '#e5e7eb',
-            borderRadius: 12,
-            color: '#065f46',
-            fontWeight: 600
-          }}
-        >
-          {statusLabel}
-        </span>
-      </header>
+    <main>
+      <TopNav />
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px' }}>
+        <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+          <div>
+            <p style={{ margin: 0, color: '#6b7280', fontSize: 14 }}>Editor</p>
+            <h1 style={{ margin: '6px 0 0', fontSize: 26 }}>Bozza LinkedIn</h1>
+          </div>
+          <span
+            style={{
+              padding: '6px 12px',
+              background: draft?.status === 'published' ? '#d1fae5' : '#e5e7eb',
+              borderRadius: 12,
+              color: '#065f46',
+              fontWeight: 600
+            }}
+          >
+            {statusLabel}
+          </span>
+        </header>
 
-      {message && (
-        <div style={{ background: '#eef2ff', border: '1px solid #c7d2fe', color: '#312e81', padding: 12, borderRadius: 8, marginBottom: 16 }}>
-          {message}
-        </div>
-      )}
+        {message && (
+          <div style={{ background: '#eef2ff', border: '1px solid #c7d2fe', color: '#312e81', padding: 12, borderRadius: 8, marginBottom: 16 }}>
+            {message}
+          </div>
+        )}
 
-      {loading ? (
-        <div>Caricamento bozza...</div>
-      ) : !draft ? (
-        <div style={{ background: '#fff', padding: 16, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-          Bozza non trovata.
-        </div>
-      ) : (
-        <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, alignItems: 'start' }}>
-          <section style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-            <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#111827' }}>Testo del post</label>
-            <textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={18}
-              style={{ width: '100%', borderRadius: 10, border: '1px solid #d1d5db', padding: 12, fontSize: 15, lineHeight: 1.5 }}
-            />
-            <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
-              <button
-                type="button"
-                onClick={saveDraft}
-                disabled={saving}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: 10,
-                  border: 'none',
-                  background: saving ? '#9ca3af' : '#2563eb',
-                  color: '#fff',
-                  fontWeight: 600,
-                  cursor: saving ? 'not-allowed' : 'pointer'
-                }}
-              >
-                {saving ? 'Salvataggio...' : 'Salva'}
-              </button>
-              <button
-                type="button"
-                onClick={publishDraft}
-                disabled={publishing || draft.status === 'published'}
-                style={{
-                  padding: '10px 14px',
-                  borderRadius: 10,
-                  border: 'none',
-                  background:
-                    publishing || draft.status === 'published' ? '#9ca3af' : '#10b981',
-                  color: '#fff',
-                  fontWeight: 600,
-                  cursor: publishing || draft.status === 'published' ? 'not-allowed' : 'pointer'
-                }}
-              >
-                {draft.status === 'published' ? 'Già pubblicato' : publishing ? 'Pubblicazione...' : 'Pubblica su LinkedIn'}
-              </button>
-            </div>
-            {draft.linkedin_post_id && (
-              <p style={{ marginTop: 8, color: '#6b7280', fontSize: 13 }}>
-                LinkedIn Post ID: {draft.linkedin_post_id}
-              </p>
-            )}
-          </section>
-
-          <aside style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-              <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>Immagine</h3>
-              <button
-                type="button"
-                onClick={generateImage}
-                disabled={imageLoading || draft.status === 'published'}
-                style={{
-                  padding: '10px 12px',
-                  borderRadius: 10,
-                  border: 'none',
-                  background: imageLoading || draft.status === 'published' ? '#9ca3af' : '#2563eb',
-                  color: '#fff',
-                  fontWeight: 600,
-                  cursor: imageLoading || draft.status === 'published' ? 'not-allowed' : 'pointer',
-                  width: '100%'
-                }}
-              >
-                {imageLoading ? 'Generazione...' : 'Genera immagine'}
-              </button>
-              {draft.image_assets && draft.image_assets.length > 0 ? (
-                <div style={{ marginTop: 12 }}>
-                  <p style={{ margin: '0 0 8px', color: '#6b7280', fontSize: 14 }}>Anteprima</p>
-                  <img
-                    src={draft.image_assets[0].url}
-                    alt="Anteprima immagine"
-                    style={{ width: '100%', borderRadius: 10, border: '1px solid #e5e7eb' }}
-                  />
-                </div>
-              ) : (
-                <p style={{ marginTop: 12, color: '#6b7280', fontSize: 14 }}>
-                  Nessuna immagine generata.
+        {loading ? (
+          <div>Caricamento bozza...</div>
+        ) : !draft ? (
+          <div style={{ background: '#fff', padding: 16, borderRadius: 10, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+            Bozza non trovata.
+          </div>
+        ) : (
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: 16, alignItems: 'start' }}>
+            <section style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+              <label style={{ display: 'block', fontWeight: 600, marginBottom: 8, color: '#111827' }}>Testo del post</label>
+              <textarea
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                rows={18}
+                style={{ width: '100%', borderRadius: 10, border: '1px solid #d1d5db', padding: 12, fontSize: 15, lineHeight: 1.5 }}
+              />
+              <div style={{ marginTop: 12, display: 'flex', gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={saveDraft}
+                  disabled={saving}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    border: 'none',
+                    background: saving ? '#9ca3af' : '#2563eb',
+                    color: '#fff',
+                    fontWeight: 600,
+                    cursor: saving ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {saving ? 'Salvataggio...' : 'Salva'}
+                </button>
+                <button
+                  type="button"
+                  onClick={publishDraft}
+                  disabled={publishing || draft.status === 'published'}
+                  style={{
+                    padding: '10px 14px',
+                    borderRadius: 10,
+                    border: 'none',
+                    background: publishing || draft.status === 'published' ? '#9ca3af' : '#10b981',
+                    color: '#fff',
+                    fontWeight: 600,
+                    cursor: publishing || draft.status === 'published' ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  {draft.status === 'published' ? 'Già pubblicato' : publishing ? 'Pubblicazione...' : 'Pubblica su LinkedIn'}
+                </button>
+              </div>
+              {draft.linkedin_post_id && (
+                <p style={{ marginTop: 8, color: '#6b7280', fontSize: 13 }}>
+                  LinkedIn Post ID: {draft.linkedin_post_id}
                 </p>
               )}
-            </div>
+            </section>
 
-            <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
-              <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>Stato bozza</h3>
-              <ul style={{ paddingLeft: 18, color: '#374151', margin: 0, fontSize: 14 }}>
-                <li>Stato attuale: {draft.status}</li>
-                <li>Azione di pubblicazione disabilitata se già pubblicato</li>
-                <li>Il salvataggio aggiorna il testo modificato</li>
-              </ul>
-            </div>
-          </aside>
-        </div>
-      )}
+            <aside style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+                <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>Immagine</h3>
+                <button
+                  type="button"
+                  onClick={generateImage}
+                  disabled={imageLoading || draft.status === 'published'}
+                  style={{
+                    padding: '10px 12px',
+                    borderRadius: 10,
+                    border: 'none',
+                    background: imageLoading || draft.status === 'published' ? '#9ca3af' : '#2563eb',
+                    color: '#fff',
+                    fontWeight: 600,
+                    cursor: imageLoading || draft.status === 'published' ? 'not-allowed' : 'pointer',
+                    width: '100%'
+                  }}
+                >
+                  {imageLoading ? 'Generazione...' : 'Genera immagine'}
+                </button>
+                {draft.image_assets && draft.image_assets.length > 0 ? (
+                  <div style={{ marginTop: 12 }}>
+                    <p style={{ margin: '0 0 8px', color: '#6b7280', fontSize: 14 }}>Anteprima</p>
+                    <img
+                      src={draft.image_assets[0].url}
+                      alt="Anteprima immagine"
+                      style={{ width: '100%', borderRadius: 10, border: '1px solid #e5e7eb' }}
+                    />
+                  </div>
+                ) : (
+                  <p style={{ marginTop: 12, color: '#6b7280', fontSize: 14 }}>
+                    Nessuna immagine generata.
+                  </p>
+                )}
+              </div>
+
+              <div style={{ background: '#fff', borderRadius: 12, padding: 16, boxShadow: '0 1px 3px rgba(0,0,0,0.08)' }}>
+                <h3 style={{ margin: '0 0 8px', fontSize: 16 }}>Stato bozza</h3>
+                <ul style={{ paddingLeft: 18, color: '#374151', margin: 0, fontSize: 14 }}>
+                  <li>Stato attuale: {draft.status}</li>
+                  <li>Azione di pubblicazione disabilitata se già pubblicato</li>
+                  <li>Il salvataggio aggiorna il testo modificato</li>
+                </ul>
+              </div>
+            </aside>
+          </div>
+        )}
+      </div>
     </main>
   );
 }
