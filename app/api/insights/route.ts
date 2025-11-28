@@ -29,13 +29,13 @@ async function getTodayTopic(userId: string): Promise<Topic | null> {
 export async function GET(request: Request) {
   const userId = resolveUserId(request);
   if (!userId) {
-    return NextResponse.json({ insights: [] }, { status: 200 });
+    return NextResponse.json({ insights: [], topicTitle: null }, { status: 200 });
   }
 
   try {
     const topic = await getTodayTopic(userId);
     if (!topic) {
-      return NextResponse.json({ insights: [] }, { status: 200 });
+      return NextResponse.json({ insights: [], topicTitle: null }, { status: 200 });
     }
 
     const rawInsights = await fetchDailyInsights(topic.title);
@@ -86,9 +86,9 @@ export async function GET(request: Request) {
     }
 
     const sorted = savedInsights.sort((a, b) => b.pulse_score - a.pulse_score);
-    return NextResponse.json({ insights: sorted }, { status: 200 });
+    return NextResponse.json({ insights: sorted, topicTitle: topic.title }, { status: 200 });
   } catch (error) {
     console.error('Unhandled /api/insights error', error);
-    return NextResponse.json({ insights: [] }, { status: 200 });
+    return NextResponse.json({ insights: [], topicTitle: null }, { status: 200 });
   }
 }
