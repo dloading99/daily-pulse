@@ -3,8 +3,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import type { InsightDTO } from '@/lib/types';
+import TopNav from '../components/TopNav';
 
-const USER_ID = process.env.NEXT_PUBLIC_DEMO_USER_ID ?? 'demo-user';
+const USER_ID =
+  process.env.NEXT_PUBLIC_DEMO_USER_ID ??
+  process.env.DEMO_USER_ID ??
+  'demo-user';
 
 interface InsightsResponse {
   insights: (InsightDTO & { pulse_score?: number })[];
@@ -115,12 +119,14 @@ export default function HomeDashboardPage() {
   }, [loading, topicTitle]);
 
   return (
-    <main style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px' }}>
-      <header style={{ marginBottom: 24 }}>
-        <p style={{ color: '#6b7280', fontSize: 14, margin: 0 }}>Daily Pulse</p>
-        <h1 style={{ margin: '8px 0 4px', fontSize: 28 }}>Insight Deck</h1>
-        <p style={{ color: '#374151', fontSize: 16, margin: 0 }}>{subtitle}</p>
-      </header>
+    <main>
+      <TopNav />
+      <div style={{ maxWidth: 960, margin: '0 auto', padding: '32px 20px' }}>
+        <header style={{ marginBottom: 24 }}>
+          <p style={{ color: '#6b7280', fontSize: 14, margin: 0 }}>Daily Pulse</p>
+          <h1 style={{ margin: '8px 0 4px', fontSize: 28 }}>Insight Deck</h1>
+          <p style={{ color: '#374151', fontSize: 16, margin: 0 }}>{subtitle}</p>
+        </header>
 
       {error && (
         <div style={{ background: '#fef2f2', color: '#991b1b', padding: 12, borderRadius: 8, marginBottom: 16 }}>
@@ -204,25 +210,26 @@ export default function HomeDashboardPage() {
         </div>
       )}
 
-      <footer style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
-        <button
-          type="button"
-          onClick={handleGenerate}
-          disabled={selectedIds.length === 0 || generating}
-          style={{
-            padding: '12px 16px',
-            borderRadius: 10,
-            border: 'none',
-            background: selectedIds.length === 0 || generating ? '#9ca3af' : '#2563eb',
-            color: '#fff',
-            fontWeight: 600,
-            cursor: selectedIds.length === 0 || generating ? 'not-allowed' : 'pointer',
-            minWidth: 180
-          }}
-        >
-          {generating ? 'Generazione...' : `Genera bozza (${selectedIds.length}/3)`}
-        </button>
-      </footer>
+        <footer style={{ marginTop: 24, display: 'flex', justifyContent: 'flex-end' }}>
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={selectedIds.length === 0 || generating}
+            style={{
+              padding: '12px 16px',
+              borderRadius: 10,
+              border: 'none',
+              background: selectedIds.length === 0 || generating ? '#9ca3af' : '#2563eb',
+              color: '#fff',
+              fontWeight: 600,
+              cursor: selectedIds.length === 0 || generating ? 'not-allowed' : 'pointer',
+              minWidth: 180
+            }}
+          >
+            {generating ? 'Generazione...' : `Genera bozza (${selectedIds.length}/3)`}
+          </button>
+        </footer>
+      </div>
     </main>
   );
 }
